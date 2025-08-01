@@ -2,7 +2,6 @@ package next.web;
 
 import core.db.DataBase;
 import next.model.User;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,18 +21,18 @@ public class LoginServlet extends HttpServlet {
         String userId = req.getParameter("userId");
         String password = req.getParameter("password");
         User user = DataBase.findUserById(userId);
-        RequestDispatcher rd;
+        String rdPath;
 
 
         if(user == null || !password.equals(user.getPassword()))
-            rd = req.getRequestDispatcher("/user/login_failed.html");
+            rdPath = "/user/login_failed.html";
         else{
-            rd = req.getRequestDispatcher("/index.html");
+            rdPath = "/home.jsp";
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
         }
 
-        rd.forward(req, resp);
+        resp.sendRedirect(rdPath);
     }
 
 }
