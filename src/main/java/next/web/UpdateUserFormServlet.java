@@ -11,9 +11,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet("/user/update")
+@WebServlet("/user/updateForm")
 public class UpdateUserFormServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -21,9 +22,8 @@ public class UpdateUserFormServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        User user = new User(req.getParameter("userId"), req.getParameter("password"), req.getParameter("name"),
-                req.getParameter("email"));
+        HttpSession session = req.getSession();
+        User user = (User)session.getAttribute("user");
         log.debug("user : {}", user);
         req.setAttribute("user", user);
         RequestDispatcher rd = req.getRequestDispatcher("/user/update.jsp");

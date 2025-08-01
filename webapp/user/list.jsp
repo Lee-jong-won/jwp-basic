@@ -60,9 +60,7 @@
         <div class="collapse navbar-collapse" id="navbar-collapse2">
             <ul class="nav navbar-nav navbar-right">
                 <li class="active"><a href="../index.html">Posts</a></li>
-                <li><a href="../user/login.html" role="button">로그인</a></li>
-                <li><a href="../user/form.html" role="button">회원가입</a></li>
-                <li><a href="#" role="button">로그아웃</a></li>
+                <li><a href="/user/logout" role="button">로그아웃</a></li>
                 <li><a href="#" role="button">개인정보수정</a></li>
             </ul>
         </div>
@@ -85,7 +83,12 @@
                         <td>${user.userId}</td>
                         <td>${user.name}</td>
                         <td>${user.email}</td>
-                        <td><a href="../user/update?userId=${user.userId}&name=${user.name}&email=${user.email}" class="btn btn-success" role="button">수정</a>
+                        <c:if test="${not empty sessionScope.user and sessionScope.user.userId == user.userId}">
+                            <td>
+                                <a href="../user/updateForm?userId=${user.userId}&name=${user.name}&email=${user.email}"
+                                   class="btn btn-success" role="button">수정</a>
+                            </td>
+                        </c:if>
                         </td>
                     </tr>
                 </c:forEach>
