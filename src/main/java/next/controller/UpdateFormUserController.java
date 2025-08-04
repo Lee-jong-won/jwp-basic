@@ -4,24 +4,18 @@ import core.db.DataBase;
 import core.web.mvc.Controller;
 import next.model.User;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-public class ProfileController implements Controller {
-    private static final long serialVersionUID = 1L;
-
+public class UpdateFormUserController implements Controller {
     @Override
     public String exeucte(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String userId = req.getParameter("userId");
         User user = DataBase.findUserById(userId);
-        if (user == null) {
-            throw new NullPointerException("사용자를 찾을 수 없습니다.");
+        if (!UserSessionUtils.isSameUser(req.getSession(), user)) {
+            throw new IllegalStateException("다른 사용자의 정보를 수정할 수 없습니다.");
         }
         req.setAttribute("user", user);
-        return "/users/profile.jsp";
+        return "/users/updateForm.jsp";
     }
 }
