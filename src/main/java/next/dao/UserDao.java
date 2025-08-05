@@ -26,16 +26,13 @@ public class UserDao {
                 }
             }
 
-            String createQuery(){
-                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-            }
         };
-        insertJdbcTemplate.insert(user);
+        insertJdbcTemplate.insert("INSERT INTO USERS VALUES (?, ?, ?, ?)");
     }
 
     public void update(User user) {
        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate(){
-           void setValues(User user, PreparedStatement pstmt){
+           void setValues(PreparedStatement pstmt){
                try {
                    pstmt.setString(1, user.getPassword());
                    pstmt.setString(2, user.getName());
@@ -46,9 +43,8 @@ public class UserDao {
                }
            }
 
-           String createQuery(){return "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";}
        };
-       updateJdbcTemplate.update(user);
+       updateJdbcTemplate.update("UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?");
     }
 
     public List<User> findAll() throws SQLException {

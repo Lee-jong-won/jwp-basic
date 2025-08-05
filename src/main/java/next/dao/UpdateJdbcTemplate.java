@@ -2,23 +2,21 @@ package next.dao;
 
 import core.exception.RuntimeSQLException;
 import core.jdbc.ConnectionManager;
-import next.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UpdateJdbcTemplate extends JdbcTemplate {
-    public void update(User user) {
+    public void update(String query) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
+            String sql = query;
             pstmt = con.prepareStatement(sql);
-            setValues(user, pstmt);
+            setValues(pstmt);
             pstmt.executeUpdate();
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
@@ -40,8 +38,5 @@ public class UpdateJdbcTemplate extends JdbcTemplate {
     }
 
     @Override
-    void setValues(User user, PreparedStatement pstmt) {}
-
-    @Override
-    String createQuery() {return null;}
+    void setValues(PreparedStatement pstmt) {}
 }

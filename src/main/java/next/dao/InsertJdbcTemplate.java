@@ -9,14 +9,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class InsertJdbcTemplate extends JdbcTemplate {
-    public void insert(User user) {
+    public void insert(String query) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQuery();
+            String sql = query;
             pstmt = con.prepareStatement(sql);
-            setValues(user, pstmt);
+            setValues(pstmt);
             pstmt.executeUpdate();
         }catch(SQLException e){
             throw new RuntimeSQLException(e);
@@ -37,8 +37,5 @@ public class InsertJdbcTemplate extends JdbcTemplate {
 
 
     @Override
-    void setValues(User user, PreparedStatement pstmt) {}
-
-    @Override
-    String createQuery() {return null;}
+    void setValues(PreparedStatement pstmt) {}
 }
