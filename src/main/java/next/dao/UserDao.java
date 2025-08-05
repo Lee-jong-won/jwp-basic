@@ -12,51 +12,15 @@ import core.jdbc.ConnectionManager;
 import next.model.User;
 
 public class UserDao {
-    public void insert(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForInsert();
-            pstmt = con.prepareStatement(sql);
-            setValuesForInsert(user, pstmt);
-            pstmt.executeUpdate();
-        }
-        catch(SQLException e){
-            throw new RuntimeSQLException(e);
-        }
-        finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
 
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void insert(User user) {
+        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
+        insertJdbcTemplate.insert(user, this);
     }
 
-    public void update(User user) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForUpdate();
-            pstmt = con.prepareStatement(sql);
-            setValuesForUpdate(user, pstmt);
-            pstmt.executeUpdate();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    public void update(User user) {
+       UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
+       updateJdbcTemplate.update(user, this);
     }
 
     public List<User> findAll() throws SQLException {
