@@ -9,16 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UpdateJdbcTemplate {
-    public void update(User user, UserDao userDao) {
+public class UpdateJdbcTemplate extends JdbcTemplate {
+    public void update(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = userDao.createQueryForUpdate();
+            String sql = createQuery();
             pstmt = con.prepareStatement(sql);
-            userDao.setValuesForUpdate(user, pstmt);
+            setValues(user, pstmt);
             pstmt.executeUpdate();
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
@@ -39,4 +39,9 @@ public class UpdateJdbcTemplate {
         }
     }
 
+    @Override
+    void setValues(User user, PreparedStatement pstmt) {}
+
+    @Override
+    String createQuery() {return null;}
 }

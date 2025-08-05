@@ -14,13 +14,41 @@ import next.model.User;
 public class UserDao {
 
     public void insert(User user) {
-        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate();
-        insertJdbcTemplate.insert(user, this);
+        InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate(){
+            void setValues(User user, PreparedStatement pstmt){
+                try {
+                    pstmt.setString(1, user.getUserId());
+                    pstmt.setString(2, user.getPassword());
+                    pstmt.setString(3, user.getName());
+                    pstmt.setString(4, user.getEmail());
+                } catch (SQLException e) {
+                    throw new RuntimeSQLException(e);
+                }
+            }
+
+            String createQuery(){
+                return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
+            }
+        };
+        insertJdbcTemplate.insert(user);
     }
 
     public void update(User user) {
-       UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate();
-       updateJdbcTemplate.update(user, this);
+       UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate(){
+           void setValues(User user, PreparedStatement pstmt){
+               try {
+                   pstmt.setString(1, user.getPassword());
+                   pstmt.setString(2, user.getName());
+                   pstmt.setString(3, user.getEmail());
+                   pstmt.setString(4, user.getUserId());
+               } catch (SQLException e) {
+                   throw new RuntimeSQLException(e);
+               }
+           }
+
+           String createQuery(){return "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";}
+       };
+       updateJdbcTemplate.update(user);
     }
 
     public List<User> findAll() throws SQLException {
@@ -86,36 +114,6 @@ public class UserDao {
             }
         }
 
-    }
-
-    void setValuesForInsert(User user, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getName());
-            pstmt.setString(4, user.getEmail());
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-    }
-
-    String createQueryForInsert(){
-        return "INSERT INTO USERS VALUES (?, ?, ?, ?)";
-    }
-
-    void setValuesForUpdate(User user, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getUserId());
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-    }
-
-    String createQueryForUpdate(){
-        return "UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?";
     }
 
 }

@@ -3,6 +3,7 @@ package next.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import core.exception.RuntimeSQLException;
 import next.dao.UserDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,9 @@ public class CreateUserController implements Controller {
         UserDao userDao = new UserDao();
         try{
             userDao.insert(user);
-        }catch(SQLException e){
+        }catch(RuntimeSQLException e){
             log.error(e.getMessage());
         }
-
 
         return "redirect:/";
     }

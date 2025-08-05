@@ -8,15 +8,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class InsertJdbcTemplate {
-    public void insert(User user, UserDao userDao) {
+public class InsertJdbcTemplate extends JdbcTemplate {
+    public void insert(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = userDao.createQueryForInsert();
+            String sql = createQuery();
             pstmt = con.prepareStatement(sql);
-            userDao.setValuesForInsert(user, pstmt);
+            setValues(user, pstmt);
             pstmt.executeUpdate();
         }catch(SQLException e){
             throw new RuntimeSQLException(e);
@@ -34,4 +34,11 @@ public class InsertJdbcTemplate {
             }
         }
     }
+
+
+    @Override
+    void setValues(User user, PreparedStatement pstmt) {}
+
+    @Override
+    String createQuery() {return null;}
 }
