@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import core.db.DataBase;
+import core.exception.RuntimeSQLException;
 import core.mvc.Controller;
 import next.dao.UserDao;
 import next.model.User;
@@ -38,7 +39,7 @@ public class LoginController implements Controller {
                 viewName = "/user/login.jsp";
             }
 
-        }catch(SQLException e){
+        }catch(RuntimeSQLException e){
             log.error(e.getMessage());
         }
 

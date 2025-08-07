@@ -10,6 +10,7 @@ import java.util.List;
 import core.exception.RuntimeSQLException;
 import core.jdbc.ConnectionManager;
 import next.model.User;
+import org.h2.command.dml.Select;
 
 public class UserDao {
 
@@ -47,64 +48,15 @@ public class UserDao {
        updateJdbcTemplate.update("UPDATE USERS SET PASSWORD = ?, NAME = ?, EMAIL = ? WHERE USERID = ?");
     }
 
-    public List<User> findAll() throws SQLException {
+    public List<User> findAll() {
         // TODO 구현 필요함.
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForFindAll();
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-
-            ArrayList<User> userArrayList = new ArrayList<>();
-            User user = null;
-
-            while((user = (User)mapRow(rs)) != null)
-                userArrayList.add(user);
-
-            return userArrayList;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
+        return selectJdbcTemplate.findAll(this);
     }
 
-    public User findByUserId(String userId) throws SQLException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForFindByUserId();
-            pstmt = con.prepareStatement(sql);
-            setValuesForFindByUserId(userId, pstmt);
-
-            rs = pstmt.executeQuery();
-
-            User user = (User)mapRow(rs);
-            return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
-
+    public User findByUserId(String userId) {
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
+        return selectJdbcTemplate.findByUserId(userId, this);
     }
 
     String createQueryForFindByUserId(){

@@ -1,5 +1,6 @@
 package next.dao;
 
+import core.exception.RuntimeSQLException;
 import core.jdbc.ConnectionManager;
 import next.model.User;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class SelectJdbcTemplate{
 
-    public List<User> findAll(UserDao userDao) throws SQLException {
+    public List<User> findAll(UserDao userDao) {
         // TODO 구현 필요함.
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -25,26 +26,33 @@ public class SelectJdbcTemplate{
             rs = pstmt.executeQuery();
 
             ArrayList<User> userArrayList = new ArrayList<>();
-            if (rs.next()) {
-                userArrayList.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-            }
+            User user = null;
+
+            while((user = (User)userDao.mapRow(rs)) != null)
+                userArrayList.add(user);
 
             return userArrayList;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
+        } catch(SQLException e){
+            throw new RuntimeSQLException(e);
+        }
+        finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                throw new RuntimeSQLException(e);
             }
         }
     }
 
-    public User findByUserId(String userId, UserDao userDao) throws SQLException {
+    public User findByUserId(String userId, UserDao userDao){
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -56,22 +64,24 @@ public class SelectJdbcTemplate{
 
             rs = pstmt.executeQuery();
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
+            User user = (User)userDao.mapRow(rs);
             return user;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pstmt != null) {
-                pstmt.close();
-            }
-            if (con != null) {
-                con.close();
+        } catch(SQLException e){
+            throw new RuntimeSQLException(e);
+        }
+        finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                throw new RuntimeSQLException(e);
             }
         }
 
