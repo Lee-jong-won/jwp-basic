@@ -15,7 +15,7 @@ public class UserDao {
 
     public void insert(User user) {
         InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate(){
-            void setValues(User user, PreparedStatement pstmt){
+            void setValues(PreparedStatement pstmt){
                 try {
                     pstmt.setString(1, user.getUserId());
                     pstmt.setString(2, user.getPassword());
@@ -54,7 +54,7 @@ public class UserDao {
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS";
+            String sql = createQueryForFindAll();
             pstmt = con.prepareStatement(sql);
 
             rs = pstmt.executeQuery();
@@ -85,9 +85,9 @@ public class UserDao {
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+            String sql = createQueryForFindByUserId();
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, userId);
+            setValuesForFindByUserId(userId, pstmt);
 
             rs = pstmt.executeQuery();
 
@@ -111,5 +111,23 @@ public class UserDao {
         }
 
     }
+
+    private String createQueryForFindByUserId(){
+        return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
+    }
+
+    private void setValuesForFindByUserId(String userId, PreparedStatement pstmt){
+        try {
+            pstmt.setString(1, userId);
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+    }
+
+    private String createQueryForFindAll(){
+        return "SELECT userId, password, name, email FROM USERS";
+    }
+
+
 
 }

@@ -2,7 +2,6 @@ package next.dao;
 
 import core.exception.RuntimeSQLException;
 import core.jdbc.ConnectionManager;
-import next.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
