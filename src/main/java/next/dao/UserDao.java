@@ -51,42 +51,12 @@ public class UserDao {
     public List<User> findAll() {
         // TODO 구현 필요함.
         SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findAll(this);
+        return selectJdbcTemplate.findAll();
     }
 
     public User findByUserId(String userId) {
         SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findByUserId(userId, this);
-    }
-
-    String createQueryForFindByUserId(){
-        return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-    }
-
-    void setValuesForFindByUserId(String userId, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, userId);
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-    }
-
-    String createQueryForFindAll(){
-        return "SELECT userId, password, name, email FROM USERS";
-    }
-
-    Object mapRow(ResultSet rs){
-        User user = null;
-        try {
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-
-        return user;
+        return selectJdbcTemplate.findByUserId(userId);
     }
 
 
