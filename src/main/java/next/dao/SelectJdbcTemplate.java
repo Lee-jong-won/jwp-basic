@@ -2,7 +2,6 @@ package next.dao;
 
 import core.exception.RuntimeSQLException;
 import core.jdbc.ConnectionManager;
-import next.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,61 +10,34 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectJdbcTemplate extends JdbcTemplate{
+public class SelectJdbcTemplate<T> extends JdbcTemplate{
 
-    public List<User> findAll() {
-        // TODO 구현 필요함.
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = createQueryForFindAll();
-            pstmt = con.prepareStatement(sql);
+    private final RowMapper<T> rowMapper;
 
-            rs = pstmt.executeQuery();
-
-            ArrayList<User> userArrayList = new ArrayList<>();
-            User user = null;
-
-            while((user = (User)mapRow(rs)) != null)
-                userArrayList.add(user);
-
-            return userArrayList;
-        } catch(SQLException e){
-            throw new RuntimeSQLException(e);
-        }
-        finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                throw new RuntimeSQLException(e);
-            }
-        }
+    public SelectJdbcTemplate(RowMapper<T> rowMapper) {
+        this.rowMapper = rowMapper;
     }
 
-    public User findByUserId(String userId){
+    public List<T> query(String query){
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = ConnectionManager.getConnection();
-            String sql = createQueryForFindByUserId();
-            pstmt = con.prepareStatement(sql);
-            setValuesForFindByUserId(userId, pstmt);
+            pstmt = con.prepareStatement(query);
 
             rs = pstmt.executeQuery();
 
-            User user = (User)mapRow(rs);
-            return user;
+            ArrayList<T> objects = new ArrayList<>();
+            T object = null;
+
+            while(rs.next()) {
+                object = rowMapper.mapRow(rs);
+                objects.add(object);
+            }
+
+            return objects;
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
         }
@@ -86,40 +58,50 @@ public class SelectJdbcTemplate extends JdbcTemplate{
         }
 
     }
+
+    public T queryForObject(String query){
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = ConnectionManager.getConnection();
+            pstmt = con.prepareStatement(query);
+            setValues(pstmt);
+
+            rs = pstmt.executeQuery();
+
+            T object = null;
+            if(rs.next())
+                object = rowMapper.mapRow(rs);
+
+            return object;
+        } catch(SQLException e){
+            throw new RuntimeSQLException(e);
+        }
+        finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            }catch(SQLException e){
+                throw new RuntimeSQLException(e);
+            }
+        }
+    }
+
+
 
     @Override
     void setValues(PreparedStatement pstmt) {
 
     }
 
-    Object mapRow(ResultSet rs){
-        User user = null;
-        try {
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
 
-        return user;
-    }
-
-    String createQueryForFindByUserId(){
-        return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-    }
-
-    String createQueryForFindAll(){
-        return "SELECT userId, password, name, email FROM USERS";
-    }
-
-    void setValuesForFindByUserId(String userId, PreparedStatement pstmt){
-        try {
-            pstmt.setString(1, userId);
-        } catch (SQLException e) {
-            throw new RuntimeSQLException(e);
-        }
-    }
 
 }

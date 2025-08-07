@@ -16,6 +16,7 @@ public class UserDao {
 
     public void insert(User user) {
         InsertJdbcTemplate insertJdbcTemplate = new InsertJdbcTemplate(){
+            @Override
             void setValues(PreparedStatement pstmt){
                 try {
                     pstmt.setString(1, user.getUserId());
@@ -33,6 +34,7 @@ public class UserDao {
 
     public void update(User user) {
        UpdateJdbcTemplate updateJdbcTemplate = new UpdateJdbcTemplate(){
+           @Override
            void setValues(PreparedStatement pstmt){
                try {
                    pstmt.setString(1, user.getPassword());
@@ -50,15 +52,22 @@ public class UserDao {
 
     public List<User> findAll() {
         // TODO 구현 필요함.
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findAll();
+        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate<User>(new UserRowMapper());
+        return selectJdbcTemplate.query("SELECT userId, password, name, email FROM USERS");
     }
 
     public User findByUserId(String userId) {
-        SelectJdbcTemplate selectJdbcTemplate = new SelectJdbcTemplate();
-        return selectJdbcTemplate.findByUserId(userId);
+        SelectJdbcTemplate<User> selectJdbcTemplate = new SelectJdbcTemplate(new UserRowMapper()){
+            @Override
+            void setValues(PreparedStatement pstmt) {
+                try {
+                    pstmt.setString(1, userId);
+                } catch (SQLException e) {
+                    throw new RuntimeSQLException(e);
+                }
+            }
+        };
+        return selectJdbcTemplate.queryForObject("SELECT userId, password, name, email FROM USERS WHERE userid=?");
     }
-
-
 
 }
