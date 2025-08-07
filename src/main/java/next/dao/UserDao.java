@@ -60,10 +60,10 @@ public class UserDao {
             rs = pstmt.executeQuery();
 
             ArrayList<User> userArrayList = new ArrayList<>();
-            if (rs.next()) {
-                userArrayList.add(new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email")));
-            }
+            User user = null;
+
+            while((user = (User)mapRow(rs)) != null)
+                userArrayList.add(user);
 
             return userArrayList;
         } finally {
@@ -91,12 +91,7 @@ public class UserDao {
 
             rs = pstmt.executeQuery();
 
-            User user = null;
-            if (rs.next()) {
-                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
-                        rs.getString("email"));
-            }
-
+            User user = (User)mapRow(rs);
             return user;
         } finally {
             if (rs != null) {
@@ -112,11 +107,11 @@ public class UserDao {
 
     }
 
-    private String createQueryForFindByUserId(){
+    String createQueryForFindByUserId(){
         return "SELECT userId, password, name, email FROM USERS WHERE userid=?";
     }
 
-    private void setValuesForFindByUserId(String userId, PreparedStatement pstmt){
+    void setValuesForFindByUserId(String userId, PreparedStatement pstmt){
         try {
             pstmt.setString(1, userId);
         } catch (SQLException e) {
@@ -124,8 +119,22 @@ public class UserDao {
         }
     }
 
-    private String createQueryForFindAll(){
+    String createQueryForFindAll(){
         return "SELECT userId, password, name, email FROM USERS";
+    }
+
+    Object mapRow(ResultSet rs){
+        User user = null;
+        try {
+            if (rs.next()) {
+                user = new User(rs.getString("userId"), rs.getString("password"), rs.getString("name"),
+                        rs.getString("email"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeSQLException(e);
+        }
+
+        return user;
     }
 
 
