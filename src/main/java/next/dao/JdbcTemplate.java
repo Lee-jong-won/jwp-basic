@@ -22,6 +22,18 @@ public class JdbcTemplate {
         }
     }
 
+    public void update(String query, Object... objects) {
+        try (Connection con = ConnectionManager.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            for(int i = 0; i < objects.length; i++){
+                pstmt.setString(i + 1, (String)objects[i]);
+            }
+            pstmt.executeUpdate();
+        } catch(SQLException e){
+            throw new RuntimeSQLException(e);
+        }
+    }
+
     public <T> List<T> query(String query, RowMapper<T> rowMapper){
         try(Connection con = ConnectionManager.getConnection();
         PreparedStatement pstmt = con.prepareStatement(query)) {
@@ -47,6 +59,25 @@ public class JdbcTemplate {
         try(Connection con = ConnectionManager.getConnection();
         PreparedStatement pstmt = con.prepareStatement(query)) {
             pss.setValues(pstmt);
+            ResultSet rs = pstmt.executeQuery();
+
+            T object = null;
+            if(rs.next())
+                object = rowMapper.mapRow(rs);
+
+            return object;
+        } catch(SQLException e){
+            throw new RuntimeSQLException(e);
+        }
+
+    }
+
+    public <T> T queryForObject(String query, RowMapper<T> rowMapper, Object... objects){
+        try(Connection con = ConnectionManager.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(query)) {
+            for(int i = 0; i < objects.length; i++){
+                pstmt.setString(i + 1, (String)objects[i]);
+            }
             ResultSet rs = pstmt.executeQuery();
 
             T object = null;
