@@ -13,47 +13,23 @@ import java.util.List;
 public class JdbcTemplate {
 
     public void update(String query, PreparedStatementSetter pss) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            String sql = query;
-            pstmt = con.prepareStatement(sql);
+        try (Connection con = ConnectionManager.getConnection();
+        PreparedStatement pstmt = con.prepareStatement(query)) {
             pss.setValues(pstmt);
             pstmt.executeUpdate();
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch(SQLException e){
-                throw new RuntimeSQLException(e);
-            }
         }
     }
 
-    public List<Object> query(String query, RowMapper rowMapper){
+    public <T> List<T> query(String query, RowMapper<T> rowMapper){
+        try(Connection con = ConnectionManager.getConnection();
+        PreparedStatement pstmt = con.prepareStatement(query)) {
 
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(query);
+            ResultSet rs = pstmt.executeQuery();
 
-            rs = pstmt.executeQuery();
-
-            ArrayList<Object> objects = new ArrayList<>();
-            Object object = null;
+            ArrayList<T> objects = new ArrayList<>();
+            T object = null;
 
             while(rs.next()) {
                 object = rowMapper.mapRow(rs);
@@ -64,36 +40,16 @@ public class JdbcTemplate {
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
         }
-        finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                throw new RuntimeSQLException(e);
-            }
-        }
 
     }
 
-    public Object queryForObject(String query, PreparedStatementSetter pss, RowMapper rowMapper){
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = ConnectionManager.getConnection();
-            pstmt = con.prepareStatement(query);
+    public <T> T queryForObject(String query, PreparedStatementSetter pss, RowMapper<T> rowMapper){
+        try(Connection con = ConnectionManager.getConnection();
+        PreparedStatement pstmt = con.prepareStatement(query)) {
             pss.setValues(pstmt);
+            ResultSet rs = pstmt.executeQuery();
 
-            rs = pstmt.executeQuery();
-
-            Object object = null;
+            T object = null;
             if(rs.next())
                 object = rowMapper.mapRow(rs);
 
@@ -101,21 +57,7 @@ public class JdbcTemplate {
         } catch(SQLException e){
             throw new RuntimeSQLException(e);
         }
-        finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            }catch(SQLException e){
-                throw new RuntimeSQLException(e);
-            }
-        }
+
     }
 
 

@@ -56,7 +56,7 @@ public class UserDao {
         // TODO 구현 필요함.
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         String sql = "SELECT userId, password, name, email FROM USERS";
-        RowMapper rowMapper = new RowMapper(){
+        RowMapper<User> rowMapper = new RowMapper(){
             @Override
             public Object mapRow(ResultSet rs) throws SQLException {
                 return new User(
@@ -68,10 +68,7 @@ public class UserDao {
             }
         };
 
-        List<Object> objects = jdbcTemplate.query(sql, rowMapper);
-        return objects.stream()
-                .map(obj -> (User) obj)
-                .collect(Collectors.toList());
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     public User findByUserId(String userId) {
@@ -88,7 +85,7 @@ public class UserDao {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         String query = "SELECT userId, password, name, email FROM USERS WHERE userid=?";
-        RowMapper rowMapper = new RowMapper(){
+        RowMapper<User> rowMapper = new RowMapper(){
 
             @Override
             public Object mapRow(ResultSet rs) throws SQLException {
@@ -102,7 +99,7 @@ public class UserDao {
         };
 
 
-        return (User)jdbcTemplate.queryForObject(query, pss, rowMapper);
+        return jdbcTemplate.queryForObject(query, pss, rowMapper);
     }
 
 }
